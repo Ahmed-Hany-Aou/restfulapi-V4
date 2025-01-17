@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Product;
+use App\Scopes\SellerScope;
 
 class Seller extends User
 {
@@ -18,7 +19,17 @@ class Seller extends User
 //
 // Adding this ensures that the code works in any environment, making it more portable and 
 // preventing Laravel from looking for a non-existent 'sellers' table.
-    protected $table = 'users';///read above comment
+
+ // protected $table = 'users'; // No need to use this because the model inherits the table name from the User model, 
+// and the global scope ensures filtering for sellers.
+
+    protected static function boot()
+	{
+		parent::boot();
+
+		static::addGlobalScope(new SellerScope);
+	}
+
     public function products()
     {
     	return $this->hasMany(Product::class);
