@@ -58,6 +58,7 @@ return [
         'images' => [
             'driver' => 'local',
             'root' => public_path('img'),
+            'url' => env('APP_URL').'/img',
             'visibility' => 'public',
         ],
 
