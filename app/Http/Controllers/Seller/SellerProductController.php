@@ -44,7 +44,7 @@ class SellerProductController extends ApiController
         $data = $request->all();
 
         $data['status'] = Product::UNAVAILABLE_PRODUCT;
-        $data['image'] = $request->image->store('', 'images');
+        $data['image'] = $request->image->store('');
         $data['seller_id'] = $seller->id;
 
         $product = Product::create($data);
@@ -83,6 +83,12 @@ class SellerProductController extends ApiController
             if ($product->isAvailable() && $product->categories()->count() == 0) {
                 return $this->errorResponse('An active product must have at least one category', 409);
             }
+        }
+
+        if ($request->hasFile('image')) {
+            Storage::delete($product->image);
+
+            $product->image = $request->image->store('');
         }
 
         if ($product->isClean()) {
