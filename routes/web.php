@@ -11,3 +11,7 @@
 |
 */
 
+Route::get('/test-middleware', function () {
+    return response()->json(['message' => 'Middleware test successful']);
+});
+
