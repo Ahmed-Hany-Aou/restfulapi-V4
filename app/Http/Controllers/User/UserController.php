@@ -17,10 +17,19 @@ class UserController extends ApiController
      */
     public function index()
     {
-        $users = User::all();
+        $query = User::query();
+
+        // Filter by query parameters (e.g., ?isverified=1)
+        foreach (request()->query() as $field => $value) {
+            if (in_array($field, ['isverified', 'admin'])) {
+                $query->where($field, $value);
+            }
+        }
+
+        // Paginate the results
+        $users = $query->paginate(15);
 
         return $this->showAll($users);
-        // return $users;
     }
 
     /**
@@ -76,6 +85,8 @@ class UserController extends ApiController
             'admin' => 'in:' . User::ADMIN_USER . ',' . User::REGULAR_USER,
         ];
 
+        $this->validate($request, $rules);
+
         if ($request->has('name')) {
             $user->name = $request->name;
         }
@@ -129,7 +140,7 @@ class UserController extends ApiController
 
         $user->save();
 
-        return $this->showMessage('The account has been verified succesfully');
+        return $this->showMessage('The account has been verified successfully');
     }
 
     public function resend(User $user)
@@ -138,10 +149,10 @@ class UserController extends ApiController
             return $this->errorResponse('This user is already verified', 409);
         }
 
-        retry(5, function() use ($user) {
-                Mail::to($user)->send(new UserCreated($user));
-            }, 100);
+        retry(5, function () use ($user) {
+            Mail::to($user)->send(new UserCreated($user));
+        }, 100);
 
-        return $this->showMessage('The verification email has been resend');
+        return $this->showMessage('The verification email has been resent');
     }
 }
