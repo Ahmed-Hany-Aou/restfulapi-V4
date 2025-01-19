@@ -15,22 +15,26 @@ class UserController extends ApiController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $query = User::query();
+    public function index(Request $request)
+{
+    $query = User::query();
 
-        // Filter by query parameters (e.g., ?isverified=1)
-        foreach (request()->query() as $field => $value) {
-            if (in_array($field, ['isverified', 'admin'])) {
-                $query->where($field, $value);
-            }
-        }
-
-        // Paginate the results
-        $users = $query->paginate(15);
-
-        return $this->showAll($users);
+    // Filter users by query parameters
+    if ($request->has('isverified')) {
+        $query->where('verified', $request->isverified);
     }
+
+    if ($request->has('admin')) {
+        $query->where('admin', $request->admin);
+    }
+
+    // Get paginated results
+    $users = $query->paginate(15);
+
+    // Return paginated and filtered results
+    return $this->showAll($users);
+}
+
 
     /**
      * Store a newly created resource in storage.
